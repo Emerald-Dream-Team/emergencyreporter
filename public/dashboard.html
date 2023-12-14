@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #messages li {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Admin Dashboard</h1>
+  <ul id="messages"></ul>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // Load stored messages from localStorage
+    const storedMessages = new Set(JSON.parse(localStorage.getItem('broadcastMessages'))) || new Set();
+
+    socket.on('allMessages', (allMessages) => {
+      // Display all stored messages when connecting
+      displayStoredMessages(allMessages);
+    });
+
+    socket.on('broadcast', (data) => {
+      // Add the message to the set to avoid duplicates
+      storedMessages.add(data.message);
+
+      // Update localStorage with the new set of messages
+      localStorage.setItem('broadcastMessages', JSON.stringify(Array.from(storedMessages)));
+
+      // Display the message
+      appendMessage(data.message);
+    });
+
+    function appendMessage(message) {
+      const messagesList = document.getElementById('messages');
+      const li = document.createElement('li');
+      li.appendChild(document.createTextNode(message));
+      messagesList.appendChild(li);
+    }
+
+    function displayStoredMessages(messages) {
+      const messagesList = document.getElementById('messages');
+      messages.forEach(message => {
+        appendMessage(message);
+      });
+    }
+  </script>
+</body>
+</html>

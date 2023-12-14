@@ -20,11 +20,17 @@
       margin-bottom: 10px;
     }
 
-    #roleSelector,
-    #passwordInput,
-    #submitPassword,
+    #roleSelector {
+      margin-bottom: 10px;
+    }
+
     #broadcastInput,
     #broadcastButton,
+    #clearMessagesButton {
+      display: none;
+    }
+
+    #broadcastInput,
     #clearMessagesButton {
       margin-bottom: 10px;
     }
@@ -40,17 +46,13 @@
       border-radius: 4px;
     }
 
-    #clearMessagesButton:hover,
-    #broadcastButton:hover {
+    #clearMessagesButton:hover {
       background-color: #357ae8;
     }
   </style>
 </head>
 <body>
-  <input type="password" id="passwordInput" placeholder="Enter password">
-  <button id="submitPassword" onclick="submitPassword()">Submit</button>
-
-<select id="roleSelector" onchange="setRole()"></select>
+  <select id="roleSelector" onchange="setRole()">
     <option value="guest">Guest</option>
     <option value="admin">Admin</option>
   </select>
@@ -93,26 +95,6 @@
       document.getElementById('messages').innerHTML = '';
     });
 
-    function submitPassword() {
-      const passwordInput = document.getElementById('passwordInput');
-      const enteredPassword = passwordInput.value.trim();
-
-      // Check if the entered password is correct
-      if (enteredPassword === '1234') {
-        // Set the user role to admin
-        userRole = 'admin';
-
-        // Show/hide elements based on user role
-        toggleElementsVisibility();
-        socket.emit('setRole', userRole);
-      } else {
-        alert('Incorrect password. Please try again.');
-      }
-
-      // Clear the password input
-      passwordInput.value = '';
-    }
-
     function setRole() {
       const roleSelector = document.getElementById('roleSelector');
       userRole = roleSelector.value;
@@ -131,7 +113,7 @@
         socket.emit('message', { message, role: userRole });
         broadcastInput.value = '';
       } else {
-        alert('You need to be an admin to broadcast - to login, enter the password');
+        alert('You enter a non-empty message to broadcast.');
       }
     }
 
