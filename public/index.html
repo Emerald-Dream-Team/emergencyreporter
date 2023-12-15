@@ -20,7 +20,6 @@
       margin-bottom: 10px;
     }
 
-    #roleSelector,
     #passwordInput,
     #submitPassword,
     #broadcastInput,
@@ -47,13 +46,10 @@
   </style>
 </head>
 <body>
-  <input type="password" id="passwordInput" placeholder="Enter password">
+  <input type="password" id="passwordInput" placeholder="Enter admin password">
   <button id="submitPassword" onclick="submitPassword()">Submit</button>
 
-<select id="roleSelector" onchange="setRole()"></select>
-    <option value="guest">Guest</option>
-    <option value="admin">Admin</option>
-  </select>
+  <p id="userRoleDisplay">User: guest</p>
 
   <ul id="messages"></ul>
 
@@ -105,22 +101,14 @@
         // Show/hide elements based on user role
         toggleElementsVisibility();
         socket.emit('setRole', userRole);
+        // Update the user role display
+        document.getElementById('userRoleDisplay').innerText = `User: ${userRole}`;
       } else {
         alert('Incorrect password. Please try again.');
       }
 
       // Clear the password input
       passwordInput.value = '';
-    }
-
-    function setRole() {
-      const roleSelector = document.getElementById('roleSelector');
-      userRole = roleSelector.value;
-
-      // Show/hide elements based on user role
-      toggleElementsVisibility();
-      
-      socket.emit('setRole', userRole);
     }
 
     function broadcastMessage() {
@@ -131,7 +119,7 @@
         socket.emit('message', { message, role: userRole });
         broadcastInput.value = '';
       } else {
-        alert('You need to be an admin to broadcast - to login, enter the password');
+        alert('Please enter text to broadcast');
       }
     }
 
@@ -159,6 +147,9 @@
       }
     }
 
+    // Initially, hide elements for guest
+    toggleElementsVisibility();
+    
     function toggleElementsVisibility() {
       const broadcastInput = document.getElementById('broadcastInput');
       const broadcastButton = document.getElementById('broadcastButton');
