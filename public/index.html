@@ -24,12 +24,15 @@
     #submitPassword,
     #broadcastInput,
     #broadcastButton,
-    #clearMessagesButton {
+    #clearMessagesButton,
+    #reportInput,
+    #reportButton {
       margin-bottom: 10px;
     }
 
     #clearMessagesButton,
-    #broadcastButton {
+    #broadcastButton,
+    #reportButton {
       margin-top: 10px;
       padding: 8px 16px;
       cursor: pointer;
@@ -40,7 +43,8 @@
     }
 
     #clearMessagesButton:hover,
-    #broadcastButton:hover {
+    #broadcastButton:hover,
+    #reportButton:hover {
       background-color: #357ae8;
     }
   </style>
@@ -57,6 +61,10 @@
   <button id="broadcastButton" onclick="broadcastMessage()">Broadcast</button>
 
   <button id="clearMessagesButton" onclick="clearMessages()">Clear Messages</button>
+
+  <!-- Report input and button for guests -->
+  <input id="reportInput" autocomplete="off" />
+  <button id="reportButton" onclick="submitReport()">Submit Report</button>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
   <script>
@@ -103,6 +111,14 @@
         socket.emit('setRole', userRole);
         // Update the user role display
         document.getElementById('userRoleDisplay').innerText = `User: ${userRole}`;
+
+        // Hide the password input when the user is an admin
+        passwordInput.style.display = 'none';
+        // Hide the submit button when the user is an admin
+        document.getElementById('submitPassword').style.display = 'none';
+
+        // Display stored guest messages to the admin
+        displayStoredMessages(Array.from(storedMessages));
       } else {
         alert('Incorrect password. Please try again.');
       }
@@ -122,6 +138,31 @@
         alert('Please enter text to broadcast');
       }
     }
+
+    // Function for guests to submit reports
+    function submitReport() {
+      const reportInput = document.getElementById('reportInput');
+      const reportMessage = reportInput.value.trim();
+
+      if (reportMessage !== '') {
+        // Store the guest report message
+        storedMessages.add({ id: `${Date.now()}`, message: `Guest Report: ${reportMessage}` });
+        // Broadcast the report to the admin
+        socket.emit('report', { message: reportMessage, role: 'guest' });
+        // Display the report message for the guest
+        appendMessage(`Your Report: ${reportMessage}`);
+        reportInput.value = '';
+      } else {
+        alert('Please enter a report message.');
+      }
+    }
+
+    socket.on('reportBroadcast', (data) => {
+      // Display the report message only if the user is an admin
+      if (userRole === 'admin') {
+        appendMessage(data.message);
+      }
+    });
 
     function appendMessage(message) {
       const messagesList = document.getElementById('messages');
@@ -154,19 +195,24 @@
       const broadcastInput = document.getElementById('broadcastInput');
       const broadcastButton = document.getElementById('broadcastButton');
       const clearMessagesButton = document.getElementById('clearMessagesButton');
+      const reportInput = document.getElementById('reportInput');
+      const reportButton = document.getElementById('reportButton');
 
       if (userRole === 'admin') {
         // Show elements for admin
         broadcastInput.style.display = 'block';
         broadcastButton.style.display = 'block';
         clearMessagesButton.style.display = 'block';
+        reportInput.style.display = 'block';
+        reportButton.style.display = 'block';
       } else {
         // Hide elements for guest
         broadcastInput.style.display = 'none';
         broadcastButton.style.display = 'none';
         clearMessagesButton.style.display = 'none';
+        reportInput.style.display = 'none';
+        reportButton.style.display = 'none';
       }
     }
-  </script>
-</body>
-</html>
+    </script>
+  </body>

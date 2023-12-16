@@ -8,8 +8,8 @@ const io = socketIO(server);
 
 app.use(express.static('public'));
 
-// Maintain a set of broadcast messages on the server
-let broadcastMessages = new Set();
+// Maintain a set of broadcast messages and guest reports on the server
+let messages = [];
 
 // Keep track of connected users and their roles
 const connectedUsers = {};
@@ -20,21 +20,36 @@ io.on('connection', (socket) => {
   // Assign a default role of 'guest' to the user
   connectedUsers[socket.id] = { role: 'guest' };
 
-  // Send all broadcast messages to the connecting client
-  socket.emit('allMessages', Array.from(broadcastMessages));
+  // Send all messages to the connecting client
+  socket.emit('allMessages', messages);
 
   socket.on('message', (data) => {
     const { message, role } = data;
 
-    // Add the message to the set with a unique identifier
+    // Add the message to the array with a unique identifier
     const messageId = `${socket.id}-${Date.now()}`;
     const timestamp = new Date().toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles' });
     const messageWithTimestamp = `${timestamp}: ${message}`;
 
-    broadcastMessages.add({ id: messageId, message: messageWithTimestamp, senderSocketId: socket.id });
+    messages.push({ id: messageId, message: messageWithTimestamp, senderSocketId: socket.id });
 
     // Broadcast the message to all connected clients
     io.emit('broadcast', { id: messageId, message: messageWithTimestamp, senderSocketId: socket.id });
+  });
+
+  // Handle guest reports
+  socket.on('report', (data) => {
+    const { message, role } = data;
+
+    // Add the report message to the array with a unique identifier
+    const reportId = `${socket.id}-report-${Date.now()}`;
+    const timestamp = new Date().toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles' });
+    const reportWithTimestamp = `${timestamp} (Report from ${role}): ${message}`;
+
+    messages.push({ id: reportId, message: reportWithTimestamp, senderSocketId: socket.id });
+
+    // Broadcast the report to all admins
+    io.emit('reportBroadcast', { message: reportWithTimestamp, id: reportId });
   });
 
   socket.on('setRole', (role) => {
@@ -48,8 +63,8 @@ io.on('connection', (socket) => {
   socket.on('clearMessages', () => {
     // Check if the user has the 'admin' role before clearing messages
     if (connectedUsers[socket.id].role === 'admin') {
-      // Clear the set of broadcast messages on the server
-      broadcastMessages.clear();
+      // Clear the array of messages on the server
+      messages = [];
 
       // Broadcast the message to clear messages to all connected clients
       io.emit('messagesCleared');
