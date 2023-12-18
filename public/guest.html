@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guest Interface</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 20px;
+      background-color: #f0f0f0;
+      color: #333;
+    }
+
+    #container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #4285f4;
+    }
+
+    #emergencyAlertDisplay,
+    #emergencyInfoDisplay,
+    #notificationDisplay {
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #notificationDisplay {
+      color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>Emergency Information System</h1>
+    
+    <div id="emergencyAlertDisplay">
+      <h2>Emergency Alert</h2>
+      <div id="emergencyAlertContent"></div>
+    </div>
+    
+    <div id="emergencyInfoDisplay">
+      <h2>Emergency Information</h2>
+      <div id="emergencyInfoContent"></div>
+    </div>
+    
+    <div id="notificationDisplay"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    socket.on('emergencyAlert', (emergencyInfo) => {
+      displayEmergencyContent('emergencyAlertContent', emergencyInfo);
+    });
+
+    socket.on('emergencyUpdated', (emergencyInfo) => {
+      displayEmergencyContent('emergencyInfoContent', emergencyInfo);
+    });
+
+    socket.on('notification', (message) => {
+      displayNotification(message);
+    });
+
+    function displayEmergencyContent(containerId, emergencyInfo) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = `
+        <p><strong>Emergency Type:</strong> ${emergencyInfo.emergencyType}</p>
+        <p><strong>Evacuation Area:</strong> ${emergencyInfo.evacuationArea}</p>
+      `;
+    }
+
+    function displayNotification(message) {
+      const notificationDisplay = document.getElementById('notificationDisplay');
+      notificationDisplay.innerHTML = `<p><strong>Notification:</strong> ${message}</p>`;
+    }
+  </script>
+</body>
+</html>

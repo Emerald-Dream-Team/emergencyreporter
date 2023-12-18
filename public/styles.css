@@ -1,81 +1,93 @@
-/* Reset some default browser styles */
-body, h1, p, ul {
-    margin: 0;
-    padding: 0;
-  }
-  
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-  }
-  
-  .container {
-    max-width: 800px;
-    margin: 20px auto;
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Header styles */
-  header {
-    text-align: center;
-    background-color: #4285f4;
-    color: #fff;
-    padding: 10px;
-  }
-  
-  h1 {
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
-  
-  /* Input styles */
-  input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    box-sizing: border-box;
-  }
-  
-  /* Button styles */
-  button {
-    background-color: #4285f4;
-    color: #fff;
-    padding: 10px 20px;
-    cursor: pointer;
-    border: none;
-    border-radius: 4px;
-  }
-  
-  button:hover {
-    background-color: #357ae8;
-  }
-  
-  /* Display area styles */
-  #emergencyInfoDisplay {
-    margin-bottom: 20px;
-  }
-  
-  #notificationDisplay {
-    color: red;
-    margin-bottom: 20px;
-  }
-  
-  /* Form and content area styles */
-  .form-area {
-    margin-bottom: 20px;
-  }
-  
-  /* Responsive styles */
-  @media (max-width: 600px) {
-    .container {
-      margin: 10px;
-    }
-  
-    button {
-      width: 100%;
-    }
-  }
-  
+/* styles.css */
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 20px;
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+#container {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #4285f4;
+}
+
+#emergencyTypeInput,
+#evacuationAreaInput,
+#updateEmergencyButton,
+#notifyUsersButton,
+#deleteMessagesButton,
+#reportInput,
+#submitReportButton {
+  margin-bottom: 10px;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+#emergencyTypeInput,
+#evacuationAreaInput,
+#reportInput {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#updateEmergencyButton,
+#notifyUsersButton,
+#deleteMessagesButton,
+#submitReportButton {
+  cursor: pointer;
+  background-color: #4285f4;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+#updateEmergencyButton:hover,
+#notifyUsersButton:hover,
+#deleteMessagesButton:hover,
+#submitReportButton:hover {
+  background-color: #357ae8;
+}
+
+#emergencyInfoDisplay {
+  margin-bottom: 20px;
+}
+
+#reportsList,
+#messages {
+  list-style-type: none;
+  padding: 0;
+}
+
+#reportsList li,
+#messages li {
+  margin-bottom: 10px;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+#emergencyAlertDisplay {
+  margin-bottom: 20px;
+}
+
+#notificationDisplay {
+  color: red;
+  margin-bottom: 20px;
+}
+
+#notificationDisplay strong {
+  font-weight: bold;
+}

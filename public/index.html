@@ -3,88 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Interface</title>
+  <title>Dashboard</title>
   <link rel="stylesheet" href="styles.css">
   <style>
     body {
       font-family: Arial, sans-serif;
+      text-align: center;
       margin: 20px;
     }
 
-    #emergencyInfoDisplay {
-      margin-bottom: 20px;
+    h1 {
+      color: #4285f4;
     }
 
-    #notificationDisplay {
-      color: red;
-      margin-bottom: 20px;
+    #dashboardButtons {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
     }
 
-    #notificationDisplay strong {
-      font-weight: bold;
+    #guestButton,
+    #adminButton {
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #4285f4;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      text-decoration: none;
+    }
+
+    #guestButton:hover,
+    #adminButton:hover {
+      background-color: #357ae8;
     }
   </style>
 </head>
 <body>
-  <div id="emergencyInfoDisplay"></div>
-  <div id="notificationDisplay"></div>
+  <h1>Welcome to the Emergency App Dashboard</h1>
+  <div id="dashboardButtons">
+    <a href="guest.html" id="guestButton">Guest Interface</a>
+    <button id="adminButton" onclick="goToAdmin()">Admin Panel</button>
+  </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
   <script>
-    const socket = io();
-
-    socket.on('emergencyUpdated', (emergencyInfo) => {
-      // Display the updated emergency information
-      displayEmergencyInfo(emergencyInfo);
-    });
-
-    socket.on('notification', (message) => {
-      // Display emergency notification
-      displayNotification(message);
-    });
-
-    // Your existing client-side code
-
-    // Add logic for handling different emergencies
-    socket.on('emergency', (emergencyType) => {
-      switch (emergencyType) {
-        case 'fire':
-          handleFireEmergency();
-          break;
-        case 'earthquake':
-          handleEarthquakeEmergency();
-          break;
-        // Add more cases as needed
-        default:
-          // Handle unknown emergency type
+    function goToAdmin() {
+      const adminPassword = prompt('Enter the admin password:');
+  
+      if (adminPassword) {
+        fetch('/admin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `password=${adminPassword}`,
+        })
+          .then(response => response.json()) // Parse the response as JSON
+          .then(data => {
+            if (data.success) {
+              window.location.href = 'admin.html';
+            } else {
+              alert('Incorrect password. Access denied.');
+            }
+          })
+          .catch(error => console.error('Error during authentication:', error));
       }
-    });
-
-    function handleFireEmergency() {
-      // Logic for handling a fire emergency
-      console.log('Fire emergency! Evacuate to the designated area.');
-      // You can update the UI or take other actions here
-    }
-
-    function handleEarthquakeEmergency() {
-      // Logic for handling an earthquake emergency
-      console.log('Earthquake emergency! Take cover and stay calm.');
-      // You can update the UI or take other actions here
-    }
-
-    // Other functions and event listeners
-
-    function displayEmergencyInfo(emergencyInfo) {
-      const emergencyInfoDisplay = document.getElementById('emergencyInfoDisplay');
-      emergencyInfoDisplay.innerHTML = `
-        <p><strong>Emergency Type:</strong> ${emergencyInfo.emergencyType}</p>
-        <p><strong>Evacuation Area:</strong> ${emergencyInfo.evacuationArea}</p>
-      `;
-    }
-
-    function displayNotification(message) {
-      const notificationDisplay = document.getElementById('notificationDisplay');
-      notificationDisplay.innerHTML = `<strong>Notification:</strong> ${message}`;
     }
   </script>
 </body>

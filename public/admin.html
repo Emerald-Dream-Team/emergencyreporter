@@ -7,48 +7,99 @@
   <link rel="stylesheet" href="styles.css">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 20px;
+      background-color: #f0f0f0;
+      color: #333;
+    }
+
+    #container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #4285f4;
     }
 
     #emergencyTypeInput,
     #evacuationAreaInput,
     #updateEmergencyButton,
-    #notifyUsersButton {
+    #notifyUsersButton,
+    #deleteMessagesButton {
       margin-bottom: 10px;
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    #emergencyTypeInput,
+    #evacuationAreaInput {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    #updateEmergencyButton,
+    #notifyUsersButton,
+    #deleteMessagesButton {
+      cursor: pointer;
+      background-color: #4285f4;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    #updateEmergencyButton:hover,
+    #notifyUsersButton:hover,
+    #deleteMessagesButton:hover {
+      background-color: #357ae8;
     }
 
     #emergencyInfoDisplay {
       margin-bottom: 20px;
     }
 
-    #updateEmergencyButton,
-    #notifyUsersButton {
-      padding: 8px 16px;
-      cursor: pointer;
-      background-color: #4285f4;
-      color: #ffffff;
-      border: none;
-      border-radius: 4px;
+    #reportsList,
+    #messages {
+      list-style-type: none;
+      padding: 0;
     }
 
-    #updateEmergencyButton:hover,
-    #notifyUsersButton:hover {
-      background-color: #357ae8;
+    #reportsList li,
+    #messages li {
+      margin-bottom: 10px;
+      background-color: #fff;
+      padding: 10px;
+      border-radius: 4px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
 <body>
-  <input type="text" id="emergencyTypeInput" placeholder="Emergency Type">
-  <input type="text" id="evacuationAreaInput" placeholder="Evacuation Area">
-  <button id="updateEmergencyButton" onclick="updateEmergency()">Update Emergency</button>
-  <button id="notifyUsersButton" onclick="notifyUsers()">Notify Users</button>
+  <div id="container">
+    <h1>Emergency Management</h1>
 
-  <div id="emergencyInfoDisplay"></div>
+    <input type="text" id="emergencyTypeInput" placeholder="Emergency Type">
+    <input type="text" id="evacuationAreaInput" placeholder="Evacuation Area">
+    <button id="updateEmergencyButton" onclick="updateEmergency()">Update Emergency</button>
+    <button id="notifyUsersButton" onclick="notifyUsers()">Notify Users</button>
+    <div id="emergencyInfoDisplay"></div>
+    <ul id="messages"></ul>
+    <ul id="reportsList"></ul>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
   <script>
     const socket = io();
+
+    // Load stored messages from localStorage
+    const storedMessages = JSON.parse(localStorage.getItem('adminMessages')) || [];
 
     function updateEmergency() {
       const emergencyTypeInput = document.getElementById('emergencyTypeInput');
@@ -79,12 +130,42 @@
       displayEmergencyInfo(emergencyInfo);
     });
 
+    socket.on('report', (data) => {
+      // Display the report message
+      displayReport(data.message);
+    });
+
+    socket.on('reportsCleared', () => {
+      // Clear the reports displayed on the page
+      document.getElementById('reportsList').innerHTML = '';
+    });
+
     function displayEmergencyInfo(emergencyInfo) {
       const emergencyInfoDisplay = document.getElementById('emergencyInfoDisplay');
       emergencyInfoDisplay.innerHTML = `
         <p><strong>Emergency Type:</strong> ${emergencyInfo.emergencyType}</p>
         <p><strong>Evacuation Area:</strong> ${emergencyInfo.evacuationArea}</p>
       `;
+    }
+
+    // Display stored messages on page load
+    const messagesList = document.getElementById('messages');
+    storedMessages.forEach((storedMessage) => {
+      appendMessage(storedMessage);
+    });
+
+    function appendMessage(message) {
+      const li = document.createElement('li');
+      li.appendChild(document.createTextNode(message));
+      messagesList.appendChild(li);
+    }
+
+    // Function to delete stored messages
+    function deleteMessages() {
+      // Clear both displayed messages on the page and stored messages in localStorage
+      messagesList.innerHTML = '';
+      storedMessages.length = 0;
+      localStorage.removeItem('adminMessages');
     }
   </script>
 </body>

@@ -2,6 +2,7 @@
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
+const bodyParser = require('body-parser');
 
 // Create an Express application
 const app = express();
@@ -10,8 +11,22 @@ const server = http.createServer(app);
 // Create a Socket.IO instance attached to the server
 const io = socketIO(server);
 
-// Serve your static files (e.g., HTML, CSS, client-side JavaScript)
+// Use bodyParser middleware to parse POST requests
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Serve your static files with authentication middleware for admin
+app.post('/admin', (req, res) => {
+  const adminPassword = req.body.password;
+
+  if (adminPassword === 'admin') {
+    res.json({ success: true }); // Send JSON response on success
+  } else {
+    res.status(401).json({ success: false }); // Send JSON response on failure
+  }
+});
+
 app.use(express.static('public'));
+app.use('/admin', express.static('admin'));
 
 // Store emergency information
 let emergencyInfo = {
