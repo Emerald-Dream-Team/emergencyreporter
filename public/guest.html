@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,13 +68,12 @@
     }
   </style>
 </head>
-
 <body>
   <button id="backButton" onclick="goToIndex()">Back to Home</button>
 
   <div id="container">
     <h1>Emergency Information System</h1>
-
+    
     <div id="emergencyInfoDisplay">
       <h2>Emergency Information</h2>
       <div id="emergencyInfoContent"></div>
@@ -83,17 +81,28 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
   <script>
+
     function goToIndex() {
       window.location.href = '/';
     }
 
     const socket = io();
 
+    // Load emergency information from localStorage on page load
+    const storedEmergencyInfo = JSON.parse(localStorage.getItem('emergencyInfo')) || {};
+
+    // Display stored emergency information
+    displayEmergencyContent('emergencyInfoContent', storedEmergencyInfo);
+
     socket.on('emergencyAlert', (emergencyInfo) => {
-      displayEmergencyContent('emergencyAlertContent', emergencyInfo);
+      // Save emergency information to localStorage
+      localStorage.setItem('emergencyInfo', JSON.stringify(emergencyInfo));
+      displayEmergencyContent('emergencyInfoContent', emergencyInfo);
     });
 
     socket.on('emergencyUpdated', (emergencyInfo) => {
+      // Save emergency information to localStorage
+      localStorage.setItem('emergencyInfo', JSON.stringify(emergencyInfo));
       displayEmergencyContent('emergencyInfoContent', emergencyInfo);
     });
 
@@ -103,10 +112,17 @@
 
     function displayEmergencyContent(containerId, emergencyInfo) {
       const container = document.getElementById(containerId);
-      container.innerHTML = `
-        <p><strong>Emergency Type:</strong> ${emergencyInfo.emergencyType}</p>
-        <p><strong>Evacuation Area:</strong> ${emergencyInfo.evacuationArea}</p>
-      `;
+
+      // Check if emergencyInfo has the necessary properties
+      if (emergencyInfo && emergencyInfo.emergencyType && emergencyInfo.evacuationArea) {
+        container.innerHTML = `
+          <p><strong>Emergency Type:</strong> ${emergencyInfo.emergencyType}</p>
+          <p><strong>Evacuation Area:</strong> ${emergencyInfo.evacuationArea}</p>
+        `;
+      } else {
+        // If not, display a message indicating no emergency information
+        container.innerHTML = '<p>No emergency information available.</p>';
+      }
     }
 
     function displayNotification(message) {
@@ -117,5 +133,4 @@
     }
   </script>
 </body>
-
 </html>
