@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    #emergencyTypeInput,
+    #evacuationAreaInput,
+    #updateEmergencyButton,
+    #notifyUsersButton {
+      margin-bottom: 10px;
+    }
+
+    #emergencyInfoDisplay {
+      margin-bottom: 20px;
+    }
+
+    #updateEmergencyButton,
+    #notifyUsersButton {
+      padding: 8px 16px;
+      cursor: pointer;
+      background-color: #4285f4;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+    }
+
+    #updateEmergencyButton:hover,
+    #notifyUsersButton:hover {
+      background-color: #357ae8;
+    }
+  </style>
+</head>
+<body>
+  <input type="text" id="emergencyTypeInput" placeholder="Emergency Type">
+  <input type="text" id="evacuationAreaInput" placeholder="Evacuation Area">
+  <button id="updateEmergencyButton" onclick="updateEmergency()">Update Emergency</button>
+  <button id="notifyUsersButton" onclick="notifyUsers()">Notify Users</button>
+
+  <div id="emergencyInfoDisplay"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    function updateEmergency() {
+      const emergencyTypeInput = document.getElementById('emergencyTypeInput');
+      const evacuationAreaInput = document.getElementById('evacuationAreaInput');
+
+      const emergencyType = emergencyTypeInput.value.trim();
+      const evacuationArea = evacuationAreaInput.value.trim();
+
+      if (emergencyType !== '' && evacuationArea !== '') {
+        // Emit the 'updateEmergency' event to the server
+        socket.emit('updateEmergency', { emergencyType, evacuationArea });
+
+        // Clear input fields
+        emergencyTypeInput.value = '';
+        evacuationAreaInput.value = '';
+      } else {
+        alert('Please enter both Emergency Type and Evacuation Area.');
+      }
+    }
+
+    function notifyUsers() {
+      // Emit the 'notifyUsers' event to the server
+      socket.emit('notifyUsers');
+    }
+
+    socket.on('emergencyUpdated', (emergencyInfo) => {
+      // Display the updated emergency information
+      displayEmergencyInfo(emergencyInfo);
+    });
+
+    function displayEmergencyInfo(emergencyInfo) {
+      const emergencyInfoDisplay = document.getElementById('emergencyInfoDisplay');
+      emergencyInfoDisplay.innerHTML = `
+        <p><strong>Emergency Type:</strong> ${emergencyInfo.emergencyType}</p>
+        <p><strong>Evacuation Area:</strong> ${emergencyInfo.evacuationArea}</p>
+      `;
+    }
+  </script>
+</body>
+</html>

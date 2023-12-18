@@ -3,216 +3,89 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Real-Time Chat</title>
+  <title>User Interface</title>
+  <link rel="stylesheet" href="styles.css">
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
     }
 
-    #messages {
-      list-style-type: none;
-      margin: 0;
-      padding: 0;
+    #emergencyInfoDisplay {
+      margin-bottom: 20px;
     }
 
-    #messages li {
-      margin-bottom: 10px;
+    #notificationDisplay {
+      color: red;
+      margin-bottom: 20px;
     }
 
-    #passwordInput,
-    #submitPassword,
-    #broadcastInput,
-    #broadcastButton,
-    #clearMessagesButton,
-    #reportInput,
-    #reportButton {
-      margin-bottom: 10px;
-    }
-
-    #clearMessagesButton,
-    #broadcastButton,
-    #reportButton {
-      margin-top: 10px;
-      padding: 8px 16px;
-      cursor: pointer;
-      background-color: #4285f4;
-      color: #ffffff;
-      border: none;
-      border-radius: 4px;
-    }
-
-    #clearMessagesButton:hover,
-    #broadcastButton:hover,
-    #reportButton:hover {
-      background-color: #357ae8;
+    #notificationDisplay strong {
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <input type="password" id="passwordInput" placeholder="Enter admin password">
-  <button id="submitPassword" onclick="submitPassword()">Submit</button>
-
-  <p id="userRoleDisplay">User: guest</p>
-
-  <ul id="messages"></ul>
-
-  <input id="broadcastInput" autocomplete="off" />
-  <button id="broadcastButton" onclick="broadcastMessage()">Broadcast</button>
-
-  <button id="clearMessagesButton" onclick="clearMessages()">Clear Messages</button>
-
-  <!-- Report input and button for guests -->
-  <input id="reportInput" autocomplete="off" />
-  <button id="reportButton" onclick="submitReport()">Submit Report</button>
+  <div id="emergencyInfoDisplay"></div>
+  <div id="notificationDisplay"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
   <script>
     const socket = io();
-    let userRole = 'guest';
 
-    // Load stored messages from localStorage
-    const storedMessages = new Set(JSON.parse(localStorage.getItem('broadcastMessages'))) || new Set();
-
-    socket.on('allMessages', (allMessages) => {
-      // Display all stored messages when connecting
-      displayStoredMessages(allMessages);
+    socket.on('emergencyUpdated', (emergencyInfo) => {
+      // Display the updated emergency information
+      displayEmergencyInfo(emergencyInfo);
     });
 
-    socket.on('broadcast', (data) => {
-      // Check if the message with the given ID already exists to avoid duplication
-      if (!storedMessages.has(data.id)) {
-        storedMessages.add(data.id);
-
-        // Display the message
-        appendMessage(data.message);
-      }
+    socket.on('notification', (message) => {
+      // Display emergency notification
+      displayNotification(message);
     });
 
-    socket.on('messagesCleared', () => {
-      // Clear the set of stored messages on the client side
-      storedMessages.clear();
+    // Your existing client-side code
 
-      // Clear the messages displayed on the page
-      document.getElementById('messages').innerHTML = '';
-    });
-
-    function submitPassword() {
-      const passwordInput = document.getElementById('passwordInput');
-      const enteredPassword = passwordInput.value.trim();
-
-      // Check if the entered password is correct
-      if (enteredPassword === '1234') {
-        // Set the user role to admin
-        userRole = 'admin';
-
-        // Show/hide elements based on user role
-        toggleElementsVisibility();
-        socket.emit('setRole', userRole);
-        // Update the user role display
-        document.getElementById('userRoleDisplay').innerText = `User: ${userRole}`;
-
-        // Hide the password input when the user is an admin
-        passwordInput.style.display = 'none';
-        // Hide the submit button when the user is an admin
-        document.getElementById('submitPassword').style.display = 'none';
-
-        // Display stored guest messages to the admin
-        displayStoredMessages(Array.from(storedMessages));
-      } else {
-        alert('Incorrect password. Please try again.');
-      }
-
-      // Clear the password input
-      passwordInput.value = '';
-    }
-
-    function broadcastMessage() {
-      const broadcastInput = document.getElementById('broadcastInput');
-      const message = broadcastInput.value.trim();
-
-      if (message !== '' && userRole === 'admin') {
-        socket.emit('message', { message, role: userRole });
-        broadcastInput.value = '';
-      } else {
-        alert('Please enter text to broadcast');
-      }
-    }
-
-    // Function for guests to submit reports
-    function submitReport() {
-      const reportInput = document.getElementById('reportInput');
-      const reportMessage = reportInput.value.trim();
-
-      if (reportMessage !== '') {
-        // Store the guest report message
-        storedMessages.add({ id: `${Date.now()}`, message: `Guest Report: ${reportMessage}` });
-        // Broadcast the report to the admin
-        socket.emit('report', { message: reportMessage, role: 'guest' });
-        // Display the report message for the guest
-        appendMessage(`Your Report: ${reportMessage}`);
-        reportInput.value = '';
-      } else {
-        alert('Please enter a report message.');
-      }
-    }
-
-    socket.on('reportBroadcast', (data) => {
-      // Display the report message only if the user is an admin
-      if (userRole === 'admin') {
-        appendMessage(data.message);
+    // Add logic for handling different emergencies
+    socket.on('emergency', (emergencyType) => {
+      switch (emergencyType) {
+        case 'fire':
+          handleFireEmergency();
+          break;
+        case 'earthquake':
+          handleEarthquakeEmergency();
+          break;
+        // Add more cases as needed
+        default:
+          // Handle unknown emergency type
       }
     });
 
-    function appendMessage(message) {
-      const messagesList = document.getElementById('messages');
-      const li = document.createElement('li');
-      li.appendChild(document.createTextNode(message));
-      messagesList.appendChild(li);
+    function handleFireEmergency() {
+      // Logic for handling a fire emergency
+      console.log('Fire emergency! Evacuate to the designated area.');
+      // You can update the UI or take other actions here
     }
 
-    function displayStoredMessages(messages) {
-      const messagesList = document.getElementById('messages');
-      messages.forEach((messageObj) => {
-        // Display the message
-        appendMessage(messageObj.message);
-
-        // Add the message ID to the set to avoid duplicates
-        storedMessages.add(messageObj.id);
-      });
+    function handleEarthquakeEmergency() {
+      // Logic for handling an earthquake emergency
+      console.log('Earthquake emergency! Take cover and stay calm.');
+      // You can update the UI or take other actions here
     }
 
-    function clearMessages() {
-      if (userRole === 'admin') {
-        socket.emit('clearMessages');
-      }
+    // Other functions and event listeners
+
+    function displayEmergencyInfo(emergencyInfo) {
+      const emergencyInfoDisplay = document.getElementById('emergencyInfoDisplay');
+      emergencyInfoDisplay.innerHTML = `
+        <p><strong>Emergency Type:</strong> ${emergencyInfo.emergencyType}</p>
+        <p><strong>Evacuation Area:</strong> ${emergencyInfo.evacuationArea}</p>
+      `;
     }
 
-    // Initially, hide elements for guest
-    toggleElementsVisibility();
-    
-    function toggleElementsVisibility() {
-      const broadcastInput = document.getElementById('broadcastInput');
-      const broadcastButton = document.getElementById('broadcastButton');
-      const clearMessagesButton = document.getElementById('clearMessagesButton');
-      const reportInput = document.getElementById('reportInput');
-      const reportButton = document.getElementById('reportButton');
-
-      if (userRole === 'admin') {
-        // Show elements for admin
-        broadcastInput.style.display = 'block';
-        broadcastButton.style.display = 'block';
-        clearMessagesButton.style.display = 'block';
-        reportInput.style.display = 'block';
-        reportButton.style.display = 'block';
-      } else {
-        // Hide elements for guest
-        broadcastInput.style.display = 'none';
-        broadcastButton.style.display = 'none';
-        clearMessagesButton.style.display = 'none';
-        reportInput.style.display = 'none';
-        reportButton.style.display = 'none';
-      }
+    function displayNotification(message) {
+      const notificationDisplay = document.getElementById('notificationDisplay');
+      notificationDisplay.innerHTML = `<strong>Notification:</strong> ${message}`;
     }
-    </script>
-  </body>
+  </script>
+</body>
+</html>
