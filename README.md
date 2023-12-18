@@ -56,7 +56,7 @@ The Emergency Management System is a web-based application designed to facilitat
 
 ## Developers
 
-- (Arnav Kakani)[https://github.com/Cabrothers] and (Alex Liao)[https://github.com/alexliao95311]
+- [Arnav Kakani](https://github.com/Cabrothers) and [Alex Liao](https://github.com/alexliao95311)
 
 ## Notes
 
