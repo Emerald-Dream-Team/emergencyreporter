@@ -50,8 +50,7 @@ The Emergency Management System is a web-based application designed to facilitat
 
 ## Project Structure
 
-- **`public` folder:** Contains static files for the Guest Interface.
-- **`admin` folder:** Contains static files for the Admin Panel.
+- **`public` folder:** Contains static files for the Guest Interface and the Admin Panel.
 - **`server/app.js`:** Node.js server file.
 
 ## Developers
