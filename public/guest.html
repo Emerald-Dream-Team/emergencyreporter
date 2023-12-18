@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,30 +38,55 @@
       box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     }
 
+    #notificationList {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #notificationList li {
+      margin-bottom: 10px;
+    }
+
     #notificationDisplay {
       color: #d32f2f;
     }
+
+    #backButton {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 10px;
+      cursor: pointer;
+      background-color: #4285f4;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    #backButton:hover {
+      background-color: #357ae8;
+    }
   </style>
 </head>
+
 <body>
+  <button id="backButton" onclick="goToIndex()">Back to Home</button>
+
   <div id="container">
     <h1>Emergency Information System</h1>
-    
-    <div id="emergencyAlertDisplay">
-      <h2>Emergency Alert</h2>
-      <div id="emergencyAlertContent"></div>
-    </div>
-    
+
     <div id="emergencyInfoDisplay">
       <h2>Emergency Information</h2>
       <div id="emergencyInfoContent"></div>
     </div>
-    
-    <div id="notificationDisplay"></div>
-  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
   <script>
+    function goToIndex() {
+      window.location.href = '/';
+    }
+
     const socket = io();
 
     socket.on('emergencyAlert', (emergencyInfo) => {
@@ -84,9 +110,12 @@
     }
 
     function displayNotification(message) {
-      const notificationDisplay = document.getElementById('notificationDisplay');
-      notificationDisplay.innerHTML = `<p><strong>Notification:</strong> ${message}</p>`;
+      const notificationList = document.getElementById('notificationList');
+      const li = document.createElement('li');
+      li.appendChild(document.createTextNode(message));
+      notificationList.appendChild(li);
     }
   </script>
 </body>
+
 </html>

@@ -50,12 +50,6 @@ io.on('connection', (socket) => {
     io.emit('emergencyUpdated', emergencyInfo);
   });
 
-  // Handle the 'notifyUsers' event from admins
-  socket.on('notifyUsers', () => {
-    // Broadcast a notification event to all connected clients
-    io.emit('notification', 'Emergency notification: ' + emergencyInfo.emergencyType);
-  });
-
   // Handle disconnection events
   socket.on('disconnect', () => {
     console.log('User disconnected');
