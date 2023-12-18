@@ -31,6 +31,7 @@
     #emergencyTypeInput,
     #evacuationAreaInput,
     #updateEmergencyButton,
+    #removeEmergencyButton,
     #notifyUsersButton,
     #deleteMessagesButton {
       margin-bottom: 10px;
@@ -46,6 +47,7 @@
     }
 
     #updateEmergencyButton,
+    #removeEmergencyButton,
     #notifyUsersButton,
     #deleteMessagesButton {
       cursor: pointer;
@@ -57,6 +59,7 @@
     }
 
     #updateEmergencyButton:hover,
+    #removeEmergencyButton:hover,
     #notifyUsersButton:hover,
     #deleteMessagesButton:hover {
       background-color: #357ae8;
@@ -109,76 +112,75 @@
     <input type="text" id="emergencyTypeInput" placeholder="Emergency Type">
     <input type="text" id="evacuationAreaInput" placeholder="Evacuation Area">
     <button id="updateEmergencyButton" onclick="updateEmergency()">Update Emergency</button>
-  </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-  <script>
-    function goToIndex() {
-      window.location.href = '/';
-    }
+    <button id="removeEmergencyButton" onclick="removeEmergency()">Remove Emergency</button>
 
-    const socket = io();
-
-    // Load stored messages from localStorage
-    const storedMessages = JSON.parse(localStorage.getItem('adminMessages')) || [];
-
-    function updateEmergency() {
-      const emergencyTypeInput = document.getElementById('emergencyTypeInput');
-      const evacuationAreaInput = document.getElementById('evacuationAreaInput');
-
-      const emergencyType = emergencyTypeInput.value.trim();
-      const evacuationArea = evacuationAreaInput.value.trim();
-
-      if (emergencyType !== '' && evacuationArea !== '') {
-        // Emit the 'updateEmergency' event to the server
-        socket.emit('updateEmergency', { emergencyType, evacuationArea });
-
-        // Clear input fields
-        emergencyTypeInput.value = '';
-        evacuationAreaInput.value = '';
-      } else {
-        alert('Please enter Emergency Type and Evacuation Area.');
+    <!-- Add the script for socket.io and JavaScript functions -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+      function goToIndex() {
+        window.location.href = '/';
       }
-    }
 
-    socket.on('emergencyUpdated', (emergencyInfo) => {
-      // Display the updated emergency information
-      displayEmergencyInfo(emergencyInfo);
-    });
+      const socket = io();
 
-    socket.on('report', (data) => {
-      // Display the report message
-      displayReport(data.message);
-    });
+      function updateEmergency() {
+        const emergencyTypeInput = document.getElementById('emergencyTypeInput');
+        const evacuationAreaInput = document.getElementById('evacuationAreaInput');
 
-    socket.on('reportsCleared', () => {
-      // Clear the reports displayed on the page
-      document.getElementById('reportsList').innerHTML = '';
-    });
+        const emergencyType = emergencyTypeInput.value.trim();
+        const evacuationArea = evacuationAreaInput.value.trim();
 
-    function displayEmergencyInfo(emergencyInfo) {
-      const emergencyInfoDisplay = document.getElementById('emergencyInfoDisplay');
-      emergencyInfoDisplay.innerHTML = `
-        <p><strong>Emergency Type:</strong> ${emergencyInfo.emergencyType}</p>
-        <p><strong>Evacuation Area:</strong> ${emergencyInfo.evacuationArea}</p>
-      `;
-    }
+        if (emergencyType !== '' && evacuationArea !== '') {
+          // Emit the 'updateEmergency' event to the server
+          socket.emit('updateEmergency', { emergencyType, evacuationArea });
 
-    function displayReport(message) {
-      const reportsList = document.getElementById('reportsList');
-      const li = document.createElement('li');
-      li.appendChild(document.createTextNode(message));
-      reportsList.appendChild(li);
-    }
+          // Clear input fields
+          emergencyTypeInput.value = '';
+          evacuationAreaInput.value = '';
+        } else {
+          alert('Please enter Emergency Type and Evacuation Area.');
+        }
+      }
 
-    // Function to delete stored messages
-    function deleteMessages() {
-      // Clear both displayed messages on the page and stored messages in localStorage
-      messagesList.innerHTML = '';
-      storedMessages.length = 0;
-      localStorage.removeItem('adminMessages');
-    }
-  </script>
+      function removeEmergency() {
+        const defaultEmergencyInfo = { emergencyType: 'None', evacuationArea: 'None' };
+
+        // Emit the 'updateEmergency' event to the server with default emergency information
+        socket.emit('updateEmergency', defaultEmergencyInfo);
+      }
+
+      socket.on('emergencyUpdated', (emergencyInfo) => {
+        // Display the updated emergency information
+        displayEmergencyInfo(emergencyInfo);
+      });
+
+      socket.on('report', (data) => {
+        // Display the report message
+        displayReport(data.message);
+      });
+
+      socket.on('reportsCleared', () => {
+        // Clear the reports displayed on the page
+        document.getElementById('reportsList').innerHTML = '';
+      });
+
+      function displayEmergencyInfo(emergencyInfo) {
+        const emergencyInfoDisplay = document.getElementById('emergencyInfoDisplay');
+        emergencyInfoDisplay.innerHTML = `
+          <p><strong>Emergency Type:</strong> ${emergencyInfo.emergencyType}</p>
+          <p><strong>Evacuation Area:</strong> ${emergencyInfo.evacuationArea}</p>
+        `;
+      }
+
+      function displayReport(message) {
+        const reportsList = document.getElementById('reportsList');
+        const li = document.createElement('li');
+        li.appendChild(document.createTextNode(message));
+        reportsList.appendChild(li);
+      }
+    </script>
+  </div>
 </body>
 
 </html>
